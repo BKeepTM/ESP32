@@ -1,5 +1,6 @@
 #include "HX711.h"
-
+#include "WiFi.h"
+#include "Api/Api.h"
 #define DOUT  23
 #define CLK  19
 HX711 cell;
@@ -8,10 +9,9 @@ const int LOADCELL_SCK_PIN = 27;
 
 const long LOADCELL_OFFSET = 50682624;
 const long LOADCELL_DIVIDER = 5895655;
+// TEMP ZA WIFI TESTIRANJE
+Api api("192.168.1.203:3000");
 
- 
-// Your WiFi credentials.
-// Set password to "" for open networks.
  
 float weight; 
 float calibration_factor = 14068.8; // for me this vlaue works just perfect 211000
@@ -33,6 +33,7 @@ void setup() {
   long zero_factor = cell.read_average(); //Get a baseline reading
   Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
   Serial.println(zero_factor);
+  api.connect();
  
 
 }
@@ -55,6 +56,7 @@ void measureweight(){
   Serial.print(" Kg");
   Serial.print(" calibration_factor: ");
   Serial.print(calibration_factor);
+  api.postWeight(weight);
   Serial.println();
   // Delay before repeating measurement
   delay(100);
