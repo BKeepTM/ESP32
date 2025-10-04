@@ -10,7 +10,7 @@ const int LOADCELL_SCK_PIN = 27;
 const long LOADCELL_OFFSET = 50682624;
 const long LOADCELL_DIVIDER = 5895655;
 // TEMP ZA WIFI TESTIRANJE
-Api api("192.168.1.203:3000");
+Api api("192.168.1.204:3000");
 
  
 float weight; 
@@ -57,7 +57,7 @@ void measureweight(){
   Serial.print(" calibration_factor: ");
   Serial.print(calibration_factor);
   api.postWeight(weight);
-  Serial.println();
+  Serial.println("printamo konec branja");
   // Delay before repeating measurement
   delay(100);
 }

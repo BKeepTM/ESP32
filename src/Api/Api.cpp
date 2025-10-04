@@ -4,48 +4,48 @@
 Api::Api(std::string apiUrl){
     this->apiUrl = apiUrl;
 }
-bool Api::postWeight(float weight){
-    if(WiFi.status()== WL_CONNECTED){
+bool Api::postWeight(float weight) {
+    if (WiFi.status() == WL_CONNECTED) {
         WiFiClient client;
         HTTPClient http;
-        Serial.println("Posiljanje teze.....");
-        Serial.print(weight);
-        // Your Domain name with URL path or IP address with path
-        Serial.println("Http begin.....");
-        http.begin(client, this->apiUrl.c_str() + String("/hiveWeight"));
-        
-        // If you need Node-RED/server authentication, insert user and password below
-        //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
-        
-        // Specify content-type header
-        Serial.println("Http addheader.....");
-        //http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        // Data to send with HTTP POST
-        
-        //String httpRequestData = String("weight=" + String(weight) + "&hiveId=1");           
-        // Send HTTP POST request
-        //int httpResponseCode = http.POST(httpRequestData);
-        
-        // If you need an HTTP request with a content type: application/json, use the following:
-        http.addHeader("Content-Type", "application/json");
-        Serial.println("Posting.....");
-        int httpResponseCode = http.POST(String ("{\"weight\":\""+ String(weight) + "\",\"hiveId\":\"1\"}"));
 
-        // If you need an HTTP request with a content type: text/plain
-        //http.addHeader("Content-Type", "text/plain");
-        //int httpResponseCode = http.POST("Hello, World!");
-        
+        String url = "http://192.168.1.205:3000/hiveWeight";
+        Serial.println("Posiljanje teze.....");
+        Serial.println("Http begin.....");
+
+        if (!http.begin(client, url)) {
+            Serial.println("Napaka pri http.begin()");
+            return false;
+        }
+
+        http.setTimeout(5000); 
+        http.addHeader("Content-Type", "application/json");
+
+        String body = "{\"weight\":\"" + String(weight) + "\",\"hiveId\":\"1\"}";
+        Serial.println("Posting body:");
+        Serial.println(body);
+
+        int httpResponseCode = http.POST(body);
         Serial.print("HTTP Response code: ");
         Serial.println(httpResponseCode);
-            
-        // Free resources
-        http.end();
+
+        if (httpResponseCode > 0) {
+            Serial.println("Posiljanje uspelo");
+        } else {
+            Serial.println("Napaka pri posiljanju");
         }
-        else {
-         Serial.println("WiFi Disconnected");
-          return false;
-        }
+
+        http.end(); // sprosti povezavo
+        delay(2000); // pocaka da se TCP zaključi
+        Serial.println("Koncal http request :)");
+        return httpResponseCode > 0;
+
+    } else {
+        Serial.println("WiFi Disconnected");
+        return false;
+    }
 }
+
 void Api::connect(){
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
