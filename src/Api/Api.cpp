@@ -4,12 +4,27 @@
 Api::Api(std::string apiUrl){
     this->apiUrl = apiUrl;
 }
+
+
+String Api::printLocalTime()
+{
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    return String("Failed to obtain time");
+  }
+  char timeStringBuff[25]; 
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", &timeinfo);
+
+  return String(timeStringBuff);
+}
+
+
 bool Api::postWeight(float weight) {
     if (WiFi.status() == WL_CONNECTED) {
         WiFiClient client;
         HTTPClient http;
 
-        String url = "http://192.168.1.205:3000/hiveWeight";
+        String url = "http://192.168.1.204:3000/hiveWeight";
         Serial.println("Posiljanje teze.....");
         Serial.println("Http begin.....");
 
@@ -21,7 +36,13 @@ bool Api::postWeight(float weight) {
         http.setTimeout(5000); 
         http.addHeader("Content-Type", "application/json");
 
-        String body = "{\"weight\":\"" + String(weight) + "\",\"hiveId\":\"1\"}";
+        //izpisovanje datetime
+        configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+        Serial.println("datum in ura:");
+        String timeWeight = printLocalTime();
+
+
+        String body = "{\"weight\":\"" + String(weight) + "\",\"hiveId\":\"1\",\"timeWeight\":\"" + String(printLocalTime()) + "\"}";
         Serial.println("Posting body:");
         Serial.println(body);
 
