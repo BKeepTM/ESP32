@@ -14,7 +14,7 @@ Api api("192.168.1.204:3000");
 
  
 float weight; 
-float calibration_factor = 14068.8; // for me this vlaue works just perfect 211000
+float calibration_factor = 129200; 
  
 void measureweight();
 void setup() {
